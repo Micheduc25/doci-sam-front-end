@@ -2,8 +2,9 @@
   <div class="items-center justify-center min-h-screen pt-10">
     <div v-show="!isLoading" class="">
       <div v-if="documents.length == 0" class="flex flex-col items-center">
+        <h1 class="mb-6 text-3xl font-bold">Public documents</h1>
         <p class="mb-4">
-          You have no documents for now. upload a document to start
+          There are no public documents for now. upload a document to start
         </p>
         <button
           @click="$router.push('/add-doc')"
@@ -14,7 +15,7 @@
       </div>
 
       <div v-else class="w-1/2 mx-auto">
-        <DocumentList :documents="documents" />
+        <DocumentList :is-public="true" :documents="documents" />
       </div>
     </div>
 
@@ -35,7 +36,7 @@ import DocumentList from '~/components/DocumentList.vue'
 import Loader from '~/components/Loader.vue'
 
 export default {
-  name: 'IndexPage',
+  name: 'PublicDocumentsPage',
 
   components: { UploadButton, DocumentList, Loader },
   middleware: 'auth',
@@ -48,12 +49,12 @@ export default {
 
   computed: {
     documents() {
-      return this.$store.getters['documents/getDocuments']
+      return this.$store.getters['documents/getPublicDocuments']
     },
   },
 
   created() {
-    this.$store.dispatch('documents/fetchDocuments').then((e) => {
+    this.$store.dispatch('documents/fetchPublicDocuments').then((e) => {
       this.isLoading = false
     })
   },
