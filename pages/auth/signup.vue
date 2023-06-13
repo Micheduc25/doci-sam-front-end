@@ -128,7 +128,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import swal from 'sweetalert'
 import Loader from '~/components/Loader.vue'
 

@@ -20,10 +20,12 @@
       </svg>
 
       <img
+        v-if="$auth.user.profile_picture"
         :src="'http://localhost:8000/' + $auth.user.profile_picture"
         alt="user's profile picture"
         class="rounded-full w-8 h-8 flex-grow-0 flex-shrink-0 mr-3"
       />
+      <fa v-else :icon="['fas', 'user-circle']" class="w-8 h-8" />
     </button>
     <div
       v-show="isOpen"
@@ -37,14 +39,14 @@
       >
         <nuxt-link
           to="/#"
-          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full text-center"
           role="menuitem"
         >
           Profile
         </nuxt-link>
         <button
           @click="$auth.logout()"
-          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full"
           role="menuitem"
         >
           Logout

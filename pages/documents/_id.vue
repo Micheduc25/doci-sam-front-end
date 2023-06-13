@@ -8,6 +8,10 @@
       <p class="">
         {{ this.currentDocument.description }}
       </p>
+
+      <p>
+        <a :href="currentDocument.file" target="_blank">Dowload</a>
+      </p>
     </div>
 
     <div v-else class="flex justify-center">
@@ -31,10 +35,16 @@ export default {
     }
   },
   async created() {
-    console.log(this.$route.query.isPublic)
+    const isShared = this.$route.query.isShared
+    const isPublic = this.$route.query.isPublic
+
     this.currentDocument = await this.$store.dispatch(
-      'documents/fetchDocument',
-      { id: this.$route.params.id, public: this.$route.query.isPublic }
+      isShared == 'true'
+        ? 'documents/fetchSharedDocument'
+        : isPublic == 'true'
+        ? 'documents/fetchPublicDocument'
+        : 'documents/fetchDocument',
+      this.$route.params.id
     )
     if (this.currentDocument == null) return
     this.hash = await getSHA256HashFromUrl(this.currentDocument.file)

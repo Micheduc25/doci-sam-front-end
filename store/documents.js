@@ -3,6 +3,7 @@ import swal from 'sweetalert'
 export const state = () => ({
   documents: [],
   publicDocuments: [],
+  sharedDocuments: [],
 })
 
 export const getters = {
@@ -13,6 +14,9 @@ export const getters = {
   getPublicDocuments(state) {
     return state.publicDocuments
   },
+  getSharedDocuments(state) {
+    return state.sharedDocuments
+  },
 }
 
 export const mutations = {
@@ -21,6 +25,9 @@ export const mutations = {
   },
   setpublicdocuments(state, docs) {
     state.publicDocuments = docs
+  },
+  setshareddocuments(state, docs) {
+    state.sharedDocuments = docs
   },
 
   adddocument(state, newDoc) {
@@ -49,10 +56,45 @@ export const actions = {
       swal(err.response.data.error)
     }
   },
-
-  async fetchDocument(context, { id, isPublic }) {
+  async fetchSharedDocuments({ state, commit }) {
     try {
-      const res = await this.$axios.get(`/documents/${id}/?public=${isPublic}`)
+      const res = await this.$axios.get('/documents/?shared=true')
+      commit('setshareddocuments', res.data)
+    } catch (err) {
+      console.log(err.response.data.error)
+
+      swal(err.response.data.error)
+    }
+  },
+
+  async fetchDocument(context, id) {
+    try {
+      const res = await this.$axios.get(`/documents/${id}/`)
+      return res.data
+    } catch (err) {
+      if (err.response.data.error) {
+        console.log(err.response.data.error)
+
+        swal(err.response.data.error)
+      }
+    }
+  },
+  async fetchSharedDocument(context, id) {
+    try {
+      const res = await this.$axios.get(`/documents/${id}/?shared=true`)
+      return res.data
+    } catch (err) {
+      if (err.response.data.error) {
+        console.log(err.response.data.error)
+
+        swal(err.response.data.error)
+      }
+    }
+  },
+
+  async fetchPublicDocument(context, id) {
+    try {
+      const res = await this.$axios.get(`/documents/${id}/?public=true`)
       return res.data
     } catch (err) {
       if (err.response.data.error) {
@@ -70,7 +112,6 @@ export const actions = {
           'Content-Type': 'multipart/form-data',
         },
       })
-      commit('adddocument', res.data)
 
       swal('Document successfully signed and saved!')
     } catch (err) {

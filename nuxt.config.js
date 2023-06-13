@@ -53,7 +53,7 @@ export default {
     },
     redirect: {
       login: '/auth/login',
-      logout: '/',
+      logout: '/auth/login',
       callback: '/auth/login',
       home: '/',
     },

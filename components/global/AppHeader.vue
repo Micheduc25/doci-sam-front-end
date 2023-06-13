@@ -19,7 +19,7 @@ onMounted(() => {
       <nuxt-link v-if="$auth.loggedIn" to="/documents/public" class="mr-6">
         Public Docs
       </nuxt-link>
-      <nuxt-link v-if="$auth.loggedIn" to="/" class="mr-6">
+      <nuxt-link v-if="$auth.loggedIn" to="/documents/shared" class="mr-6">
         Shared with Me
       </nuxt-link>
 
@@ -37,9 +37,14 @@ onMounted(() => {
 <style scoped>
 .nuxt-link-active {
   transition: 0.3s;
+  @apply px-4 py-2;
 }
 .nuxt-link-active:hover {
   text-decoration: underline;
   text-decoration-color: white;
+}
+.nuxt-link-exact-active {
+  background-color: white;
+  @apply text-blue-500 rounded-lg;
 }
 </style>
