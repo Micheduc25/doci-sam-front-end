@@ -102,6 +102,7 @@ export default {
       reader.onload = async () => {
         const data = reader.result
         const hash = await getSHA256Hash(data)
+        swal('your document signature is ' + hash)
         let formData = new FormData()
         formData.append('title', this.title)
         formData.append('description', this.description)
