@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useContext, onMounted } from '@nuxtjs/composition-api'
 import UserDropDown from '../UserDropDown.vue'
+import SearchBar from './SearchBar.vue'
 
 const { $auth } = useContext()
 
@@ -14,6 +15,8 @@ onMounted(() => {
       <fa :icon="['fas', 'file']" class="w-8 h-8" />
       <span>Docu Manager</span>
     </nuxt-link>
+
+    <SearchBar v-if="this.$auth.loggedIn" />
 
     <nav class="flex items-center">
       <nuxt-link v-if="$auth.loggedIn" to="/documents/public" class="mr-6">

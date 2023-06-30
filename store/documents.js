@@ -1,9 +1,11 @@
 import swal from 'sweetalert'
+import { debounce } from '@/utils/helpers'
 
 export const state = () => ({
   documents: [],
   publicDocuments: [],
   sharedDocuments: [],
+  searchResults: [],
 })
 
 export const getters = {
@@ -16,6 +18,10 @@ export const getters = {
   },
   getSharedDocuments(state) {
     return state.sharedDocuments
+  },
+
+  getSearchResults(state) {
+    return state.searchResults
   },
 }
 
@@ -32,6 +38,10 @@ export const mutations = {
 
   adddocument(state, newDoc) {
     state.documents = state.documents.unshift(newDoc)
+  },
+
+  SET_SEARCH_RESULTS(state, searchResults) {
+    state.searchResults = searchResults
   },
 }
 
@@ -136,5 +146,26 @@ export const actions = {
         swal(err.toString())
       }
     }
+  },
+
+  searchDocuments({ commit }, keyword) {
+    const vm = this
+    debounce(
+      (async function () {
+        try {
+          const response = await vm.$axios.post('/documents/search/', {
+            keyword,
+          })
+          const searchResults = response.data
+
+          // Commit the search results to the state or perform any other necessary actions
+          commit('SET_SEARCH_RESULTS', searchResults)
+        } catch (error) {
+          console.error('Error searching documents:', error)
+          swal('An error occurred while searching documents')
+        }
+      })(),
+      700
+    )
   },
 }
