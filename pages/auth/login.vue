@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useContext } from '@nuxtjs/composition-api'
 import swal from 'sweetalert'
+import Loader from '~/components/Loader.vue'
 
 const userData = ref({ username: '', password: '' })
 
@@ -94,7 +95,10 @@ const loginUser = async () => {
             class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
             <span v-if="!isLoading"> Sign in</span>
-            <fa v-else :icon="['fas', 'spinner']" />
+
+            <Loader class="w-8 h-8" v-else />
+
+            <!-- <fa v-else class="w-8 h-8" :icon="['fas', 'spinner']" /> -->
           </button>
         </div>
       </form>
