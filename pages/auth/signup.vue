@@ -154,12 +154,15 @@ export default {
 
       this.isLoading = true
       const user = this.$store.dispatch('users/createUser', this.form)
-      if (user) {
-        this.$auth.loginWith('local', {
-          data: { username: this.form.username, password: this.form.password },
-        })
-        swal('User successfully created!', { timer: 3000 })
-      }
+
+      swal('User successfully created!', { timer: 3000 })
+      this.$router.replace('/auth/signup')
+
+      // if (user) {
+      //   this.$auth.loginWith('local', {
+      //     data: { username: this.form.username, password: this.form.password },
+      //   })
+      // }
 
       this.isLoading = false
     },
