@@ -19,3 +19,16 @@ export function debounce(func, delay) {
     }, delay)
   }
 }
+
+export function buildFolderHistory(folder) {
+  if (!folder.parent) {
+    return [{ id: folder.id, name: folder.name }] // Base case: no parent folder
+  }
+
+  const parentPath = buildFolderHistory(folder.parent) // Add current folder name to the array
+
+  const combined = Array.from(parentPath)
+  combined.push({ id: folder.id, name: folder.name })
+
+  return combined
+}

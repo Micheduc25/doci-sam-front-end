@@ -6,6 +6,7 @@ export const state = () => ({
   publicDocuments: [],
   sharedDocuments: [],
   searchResults: [],
+  noFolderDocuments: [],
 })
 
 export const getters = {
@@ -22,6 +23,10 @@ export const getters = {
 
   getSearchResults(state) {
     return state.searchResults
+  },
+
+  getNoFolderDocuments(state) {
+    return state.noFolderDocuments
   },
 }
 
@@ -42,6 +47,10 @@ export const mutations = {
 
   SET_SEARCH_RESULTS(state, searchResults) {
     state.searchResults = searchResults
+  },
+
+  SET_NO_FOLDER_DOCUMENTS(state, noFolderDocuments) {
+    state.noFolderDocuments = noFolderDocuments
   },
 }
 
@@ -70,6 +79,17 @@ export const actions = {
     try {
       const res = await this.$axios.get('/documents/?shared=true')
       commit('setshareddocuments', res.data)
+    } catch (err) {
+      console.log(err.response.data.error)
+
+      swal(err.response.data.error)
+    }
+  },
+
+  async fetchFolderlessDocuments({ commit }) {
+    try {
+      const res = await this.$axios.get('/documents/nofolder-documents/')
+      commit('SET_NO_FOLDER_DOCUMENTS', res.data)
     } catch (err) {
       console.log(err.response.data.error)
 
@@ -124,6 +144,28 @@ export const actions = {
       })
 
       swal('Document successfully signed and saved!')
+    } catch (err) {
+      if (err.response.data.error) {
+        console.log(err.response.data.error)
+
+        swal(err.response.data.error.toString())
+      }
+    }
+  },
+  async updateDocument({ state, commit }, payload) {
+    try {
+      const res = await this.$axios.put('/documents/', payload)
+    } catch (err) {
+      if (err.response.data.error) {
+        console.log(err.response.data.error)
+
+        swal(err.response.data.error.toString())
+      }
+    }
+  },
+  async deleteDocument({ state, commit }, id) {
+    try {
+      await this.$axios.delete(`/documents/${id}/`)
     } catch (err) {
       if (err.response.data.error) {
         console.log(err.response.data.error)

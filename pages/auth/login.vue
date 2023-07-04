@@ -16,7 +16,9 @@ const loginUser = async () => {
   try {
     await $auth.loginWith('local', { data: userData.value })
   } catch (e) {
-    if (e.response && e.response.data) swal({ text: e.response.data.error })
+    console.log(e.response.data)
+    if (e.response && e.response.data)
+      swal({ text: e.response.data.error ?? e.response.data })
     else console.log(e)
   } finally {
     isLoading.value = false

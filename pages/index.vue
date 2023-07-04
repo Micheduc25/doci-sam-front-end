@@ -3,7 +3,7 @@
     <div v-show="!isLoading" class="">
       <div v-if="documents.length == 0" class="flex flex-col items-center">
         <p class="mb-4">
-          You have no documents for now. upload a document to start
+          You have no documents for now. upload adocument to start
         </p>
         <button
           @click="$router.push('/add-doc')"
@@ -13,19 +13,21 @@
         </button>
       </div>
 
-      <div v-else class="w-1/2 mx-auto">
+      <div v-else class="w-full xl:w-1/2 xl:mx-auto px-8">
+        <FoldersList class="mb-10" :folders="folders" />
+
+        <h2 v-show="documents.length > 0" class="mb-6 text-2xl font-bold">
+          Documents
+        </h2>
         <DocumentList :documents="documents" />
       </div>
     </div>
 
     <Loader v-show="isLoading" class="mx-auto" />
 
-    <nuxt-link
-      to="/add-doc"
-      title="Add document"
-      class="w-24 h-24 rounded-full flex items-center justify-center bg-blue-500 text-white text-3xl font-bold fixed bottom-20 right-20 shadow-xl"
-      >+</nuxt-link
-    >
+    <SideButtons @showPopup="showPopupfunc" />
+
+    <NewFolderForm v-if="showPopup" @hidePopup="hidePopupfunc" />
   </div>
 </template>
 
@@ -33,29 +35,55 @@
 import UploadButton from '~/components/UploadButton.vue'
 import DocumentList from '~/components/DocumentList.vue'
 import Loader from '~/components/Loader.vue'
+import Folder from '~/components/Folder.vue'
+import SideButtons from '~/components/SideButtons.vue'
+import NewFolderForm from '~/components/NewFolderForm.vue'
+import FoldersList from '~/components/FoldersList.vue'
 
 export default {
   name: 'IndexPage',
 
-  components: { UploadButton, DocumentList, Loader },
+  components: {
+    UploadButton,
+    DocumentList,
+    Loader,
+    Folder,
+    SideButtons,
+    NewFolderForm,
+    FoldersList,
+  },
   middleware: 'auth',
 
   data() {
     return {
       isLoading: true,
+      showPopup: false,
     }
   },
 
   computed: {
     documents() {
-      return this.$store.getters['documents/getDocuments']
+      return this.$store.getters['documents/getNoFolderDocuments']
+    },
+
+    folders() {
+      return this.$store.getters['folders/getFolders']
     },
   },
 
-  created() {
-    this.$store.dispatch('documents/fetchDocuments').then((e) => {
-      this.isLoading = false
-    })
+  methods: {
+    showPopupfunc() {
+      this.showPopup = true
+    },
+    hidePopupfunc() {
+      this.showPopup = false
+    },
+  },
+
+  async created() {
+    await this.$store.dispatch('documents/fetchFolderlessDocuments')
+    await this.$store.dispatch('folders/fetchFolders')
+    this.isLoading = false
   },
 }
 </script>

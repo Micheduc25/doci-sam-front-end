@@ -1,53 +1,76 @@
 <template>
-  <div class="form-container min-h-screen">
-    <h1 class="text-2xl font-bold mb-6">Add a document</h1>
-    <form @submit.prevent="handleSubmit">
-      <div class="form-group">
-        <label for="title">Document title</label>
-        <input type="text" id="title" name="title" v-model="title" required />
-      </div>
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea
-          id="description"
-          v-model="description"
-          name="description"
-          required
-        ></textarea>
-      </div>
-      <div class="form-group">
-        <input
-          type="file"
-          id="file"
-          ref="file"
-          name="file"
-          v-on:change="handleFileUpload()"
-          required
-        />
-        <label for="file">
-          <span v-if="!fileName">Choose a file</span>
-          <span v-else>{{ fileName }}</span>
-        </label>
-      </div>
-      <div class="flex items-center mb-5">
-        <input
-          v-model="isPublic"
-          type="checkbox"
-          id="checkbox"
-          name="checkbox"
-          class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-        />
-        <label for="checkbox" class="ml-2 text-gray-700">Public</label>
-      </div>
+  <section>
+    <div v-if="!pageLoading" class="form-container min-h-screen">
+      <h1 class="text-2xl font-bold mb-6">Add a document</h1>
+      <form @submit.prevent="handleSubmit">
+        <div class="form-group">
+          <label for="title">Document title</label>
+          <input type="text" id="title" name="title" v-model="title" required />
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            v-model="description"
+            name="description"
+            required
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <input
+            type="file"
+            id="file"
+            ref="file"
+            name="file"
+            v-on:change="handleFileUpload()"
+            required
+          />
+          <label for="file">
+            <span v-if="!fileName">Choose a file</span>
+            <span v-else>{{ fileName }}</span>
+          </label>
+        </div>
 
-      <RecipientsSelector @recipients="setReceivers" />
+        <div class="form-group">
+          <label for="folder">Folder</label>
+          <select v-model="folder" name="folder" id="folder">
+            <template v-if="!fixedFolder">
+              <option :value="-1">No Folder</option>
+              <option v-for="folder in folders" :value="folder.id">
+                {{ folder.name }}
+              </option>
+            </template>
+            <option
+              v-if="parentFolder && fixedFolder"
+              :value="parentFolder?.id ?? -1"
+            >
+              {{ parentFolder.name }}
+            </option>
+          </select>
+        </div>
+        <div class="flex items-center mb-5">
+          <input
+            v-model="isPublic"
+            type="checkbox"
+            id="checkbox"
+            name="checkbox"
+            :disabled="parentFolder"
+            class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+          />
+          <label for="checkbox" class="ml-2 text-gray-700">Public</label>
+        </div>
 
-      <button type="submit" name="submit" class="flex justify-center mt-6">
-        <span v-if="!isLoading">Create</span>
-        <Loader v-else />
-      </button>
-    </form>
-  </div>
+        <RecipientsSelector v-if="!isPublic" @recipients="setReceivers" />
+
+        <button type="submit" name="submit" class="flex justify-center mt-6">
+          <span v-if="!isLoading">Create</span>
+          <Loader v-else />
+        </button>
+      </form>
+    </div>
+
+    <Loader v-else />
+  </section>
 </template>
 
 <script>
@@ -65,10 +88,19 @@ export default {
       isPublic: false,
       fileName: '',
       file: null,
+      folder: -1,
       recievers: [],
+      fixedFolder: false,
 
       isLoading: false,
+      pageLoading: true,
+      parentFolder: null,
     }
+  },
+  computed: {
+    folders() {
+      return this.$store.getters['folders/getFolders']
+    },
   },
   methods: {
     handleFileUpload() {
@@ -89,12 +121,13 @@ export default {
       this.file = null
       this.isPublic = false
       this.recievers = []
+      this.folder = -1
     },
 
     async handleSubmit() {
       if (!this.file) return swal('Please select a file')
 
-      if (this.recievers.length == 0)
+      if (!this.isPublic && this.recievers.length == 0)
         return swal('Please select at least one recipient')
       this.isLoading = true
       //generate hash of the file
@@ -110,7 +143,16 @@ export default {
         formData.append('signature', hash)
         formData.append('sender', this.$auth.user.id)
         formData.append('is_public', this.isPublic)
-        formData.append('receivers ', this.recievers)
+
+        if (!this.isPublic) {
+          // formData.append('receivers', this.recievers)
+
+          this.recievers.forEach((receiver) => {
+            formData.append('receivers[]', receiver)
+          })
+        }
+
+        if (this.folder != -1) formData.append('folder', this.folder)
 
         await this.$store.dispatch('documents/createDocument', formData)
 
@@ -122,6 +164,28 @@ export default {
     },
   },
   components: { Loader, RecipientsSelector },
+
+  async created() {
+    if (this.$route.query.folder) {
+      this.fixedFolder = true
+      this.folder = this.$route.query.folder
+
+      const folder = await this.$store.dispatch(
+        'folders/fetchFolder',
+        this.folder
+      )
+
+      this.parentFolder = folder
+    }
+
+    if (this.parentFolder) {
+      this.isPublic = this.parentFolder.is_public
+    } else {
+      await this.$store.dispatch('folders/fetchFolders')
+    }
+
+    this.pageLoading = false
+  },
 }
 </script>
 
@@ -147,6 +211,7 @@ label {
 }
 
 input[type='text'],
+select,
 textarea {
   display: block;
   width: 100%;

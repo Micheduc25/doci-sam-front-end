@@ -38,7 +38,7 @@
           First Name
         </label>
         <input
-          v-model="form.firstname"
+          v-model="form.first_name"
           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="firstname"
           type="text"
@@ -54,7 +54,7 @@
           Last Name
         </label>
         <input
-          v-model="form.lastname"
+          v-model="form.last_name"
           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="lastname"
           type="text"
@@ -156,7 +156,7 @@ export default {
       const user = this.$store.dispatch('users/createUser', this.form)
 
       swal('User successfully created!', { timer: 3000 })
-      this.$router.replace('/auth/signup')
+      this.$router.replace('/auth/login')
 
       // if (user) {
       //   this.$auth.loginWith('local', {
