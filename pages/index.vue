@@ -1,7 +1,10 @@
 <template>
   <div class="items-center justify-center min-h-screen pt-10">
     <div v-show="!isLoading" class="">
-      <div v-if="documents.length == 0" class="flex flex-col items-center">
+      <div
+        v-if="documents.length == 0 && folders.length == 0"
+        class="flex flex-col items-center"
+      >
         <p class="mb-4">
           You have no documents for now. upload adocument to start
         </p>
